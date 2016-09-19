@@ -154,7 +154,7 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
         LinkedHashMap<String, Value> map = new LinkedHashMap<>();
         for(int i = 0; i < brokenCount.length - 1; i++) {
             String name = String.format("brokenCount %s %d",
-                    i == 0 ? "=" : "<=",
+                    i == 0 ? "==" : "<=",
                     i
             );
             double pValue = brokenCount[i].getAverageCount(currentTime);
@@ -179,7 +179,7 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
         }
         for(int i = l; i < activeCount.length; i++) {
             String name = String.format("activeCount %s %d",
-                    i < n ? ">=" : "=",
+                    i < n ? ">=" : "==",
                     i
             );
             double pValue = activeCount[i].getAverageCount(currentTime);
@@ -201,6 +201,38 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
                 tValue = Double.NaN;
             map.put(name, new Value(pValue, tValue));
         }
+        
+        {
+            int i = m; 
+            String name = "System is active " 
+                    + String.format("(activeCount %s %d)",
+                        i < n ? ">=" : "==",
+                        i
+                    ); 
+
+            double pValue = activeCount[i].getAverageCount(currentTime);
+            double tValue = activeCount[i].getAverageSojournTime(currentTime);
+            if (activeCount[i].getThroughCount() < 0.75)
+                tValue = Double.NaN;
+            map.put(name, new Value(pValue, tValue));
+        }
+        
+        {
+            int i = brokenCount.length - 2;
+            String name = "System is broken "  
+                    + String.format("(brokenCount %s %d)",
+                        ">",
+                        i
+            );
+            double pValue = 1.0 - brokenCount[i].getAverageCount(currentTime);
+            double tValue = (1.0 - brokenCount[i].getAverageCount(currentTime)) / brokenCount[i].getAverageCount(currentTime) *
+                    brokenCount[i].getAverageSojournTime(currentTime) *
+                    brokenCount[i].getThroughCount() / (brokenCount[i].getThroughCount() - 0.5) ;
+            if(brokenCount[i].getThroughCount() < 1.25)
+                tValue = Double.NaN;
+            map.put(name, new Value(pValue, tValue));
+        }
+        
         return map;
     }
 

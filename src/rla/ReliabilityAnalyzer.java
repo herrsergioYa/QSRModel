@@ -44,7 +44,7 @@ public class ReliabilityAnalyzer {
             rightFlow[i] = usingCount[i] * lambda;
             leftFlow[i] = Math.min(i + 1, s) * mu;
 
-            ps[i + 1] = rightFlow[i] / leftFlow[i];
+            ps[i + 1] = ps[i] * rightFlow[i] / leftFlow[i];
             sum += ps[i + 1];
         }
         for(int i = 0; i <= maxBrokenCount; i++) {
@@ -81,9 +81,9 @@ public class ReliabilityAnalyzer {
         result.append("condition").append(";").append("P").append(";").append("T").append("\n");;
         for(int i = 0; i < maxBrokenCount; i++) {
             if(i == 0)
-                result.append("broken == ");
+                result.append("brokenCount == ");
             else
-                result.append("broken <= ");
+                result.append("brokenCount <= ");
             result.append(i).append(";");
 
             result.append(d(broken[i])).append(";");
@@ -95,7 +95,7 @@ public class ReliabilityAnalyzer {
 
         result.append("condition").append(";").append("P").append(";").append("T").append("\n");;
         for(int i = 0; i < maxBrokenCount; i++) {
-            result.append("broken > ");
+            result.append("brokenCount > ");
             result.append(i).append(";");
 
             result.append(d(1 - broken[i])).append(";");
@@ -108,9 +108,9 @@ public class ReliabilityAnalyzer {
         result.append("condition").append(";").append("P").append(";").append("T").append("\n");;
         for(int i = m; i <= usingCount[0]; i++) {
             if(i == usingCount[0])
-                result.append("working == ");
+                result.append("activeCount == ");
             else
-                result.append("working >= ");
+                result.append("activeCount >= ");
             result.append(i).append(";");
 
             result.append(d(workers[i])).append(";");
@@ -122,7 +122,7 @@ public class ReliabilityAnalyzer {
 
         result.append("condition").append(";").append("P").append(";").append("T").append("\n");;
         for(int i = m; i <= usingCount[0]; i++) {
-            result.append("working < ");
+            result.append("activeCount < ");
             result.append(i).append(";");
 
             result.append(d(1 - workers[i])).append(";");
