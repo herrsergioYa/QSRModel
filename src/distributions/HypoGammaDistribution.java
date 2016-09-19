@@ -43,8 +43,8 @@ public class HypoGammaDistribution implements Distribution {
 
     public static HypoGammaDistribution fromGson(JsonObject object) {
         return new HypoGammaDistribution(
-                Distribution.fromGson(object, new double[0], "means"),
-                Distribution.fromGson(object, new double[0], "orders")
+                Distribution.getMeans(object),
+                Distribution.getOrders(object)
         );
     }
 }

@@ -41,7 +41,7 @@ public class HypoErlangDistribution0 implements Distribution {
 
     public static HypoErlangDistribution0 fromGson(JsonObject object) {
         return new HypoErlangDistribution0(
-                Distribution.fromGson(object, new double[0], "means"),
+                Distribution.getMeans(object),
                 Distribution.fromGson(object, new int[0], "orders")
         );
     }

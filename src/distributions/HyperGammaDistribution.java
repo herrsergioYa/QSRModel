@@ -48,8 +48,8 @@ public class HyperGammaDistribution implements Distribution {
     public static HyperGammaDistribution fromGson(JsonObject object) {
         return new HyperGammaDistribution(
                 Distribution.fromGson(object, new double[0], "alphas"),
-                Distribution.fromGson(object, new double[0], "means"),
-                Distribution.fromGson(object, new double[0], "orders")
+                Distribution.getMeans(object),
+                Distribution.getOrders(object)
         );
     }
 }

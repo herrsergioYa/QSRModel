@@ -33,6 +33,6 @@ public class ExponentialDistribution implements Distribution {
     }
 
     public static ExponentialDistribution fromGson(JsonObject object) {
-        return new ExponentialDistribution(object.get("mean").getAsDouble());
+        return new ExponentialDistribution(Distribution.getMean(object));
     }
 }

@@ -58,7 +58,7 @@ public class GammaDistribution implements Distribution {
     }
 
     public static GammaDistribution fromGson(JsonObject object) {
-        return new GammaDistribution(object.get("mean").getAsDouble(), object.get("order").getAsDouble());
+        return new GammaDistribution(Distribution.getMean(object), Distribution.getOrder(object));
     }
 
     @Override

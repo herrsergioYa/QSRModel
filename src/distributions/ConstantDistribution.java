@@ -29,6 +29,9 @@ public class ConstantDistribution implements Distribution {
     }
 
     public static ConstantDistribution fromGson(JsonObject object) {
-        return new ConstantDistribution(object.get("value").getAsDouble());
+        if(object.has("value"))
+            return new ConstantDistribution(object.get("value").getAsDouble());
+        else
+            return new ConstantDistribution(Distribution.getMean(object));
     }
 }

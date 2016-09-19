@@ -45,7 +45,7 @@ public class HyperErlangDistribution0 implements Distribution {
     public static HyperErlangDistribution fromGson(JsonObject object) {
         return new HyperErlangDistribution(
                 Distribution.fromGson(object, new double[0], "alphas"),
-                Distribution.fromGson(object, new double[0], "means"),
+                Distribution.getMeans(object),
                 Distribution.fromGson(object, new int[0], "orders")
         );
     }

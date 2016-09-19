@@ -38,7 +38,7 @@ public class HypoexponentialDistribution implements Distribution {
 
     public static HypoexponentialDistribution fromGson(JsonObject object) {
         return new HypoexponentialDistribution(
-                Distribution.fromGson(object, new double[0], "means")
+                Distribution.getMeans(object)
         );
     }
 

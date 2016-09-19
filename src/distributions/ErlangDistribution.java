@@ -40,7 +40,7 @@ public class ErlangDistribution implements Distribution {
     }
 
     public static ErlangDistribution fromGson(JsonObject object) {
-        return new ErlangDistribution(object.get("mean").getAsDouble(), object.get("order").getAsInt());
+        return new ErlangDistribution(Distribution.getMean(object), object.get("order").getAsInt());
     }
 
     @Override

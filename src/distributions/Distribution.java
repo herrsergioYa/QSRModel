@@ -71,4 +71,49 @@ public interface Distribution {
         }
         object.add(name, orders);
     }
+    
+    static double getMean(JsonObject object) {
+        if(object.has("mean") == object.has("hazard")) {
+            throw new IllegalArgumentException();
+        } else if(object.has("mean")) {
+            return object.get("mean").getAsDouble();
+        } else {
+            return 1.0/object.get("hazard").getAsDouble();
+        }
+    }
+    
+    static double getOrder(JsonObject object) {
+        if(object.has("order") == object.has("cov")) {
+            throw new IllegalArgumentException();
+        } else if(object.has("order")) {
+            return object.get("order").getAsDouble();
+        } else {
+            double cov = object.get("cov").getAsDouble();
+            return 1.0/(cov * cov);
+        }
+    }
+    
+    static double[] getMeans(JsonObject object) {
+        if(object.has("means") == object.has("hazards"))
+            throw new IllegalArgumentException();
+        double[] val = null;
+        if(object.has("means"))
+            return fromGson(object, val, "means");
+        val = fromGson(object, val, "hazards");
+        for(int i = 0; i < val.length; i++)
+            val[i] = 1.0 / val[i];
+        return val;
+    }
+    
+    static double[] getOrders(JsonObject object) {
+        if(object.has("orders") == object.has("covs"))
+            throw new IllegalArgumentException();
+        double[] val = null;
+        if(object.has("orders"))
+            return fromGson(object, val, "orders");
+        val = fromGson(object, val, "covs");
+        for(int i = 0; i < val.length; i++)
+            val[i] = 1.0 / (val[i] * val[i]);
+        return val;
+    }
 }

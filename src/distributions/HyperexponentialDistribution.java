@@ -42,7 +42,7 @@ public class HyperexponentialDistribution implements Distribution {
     public static HyperexponentialDistribution fromGson(JsonObject object) {
         return new HyperexponentialDistribution(
                 Distribution.fromGson(object, new double[0], "alphas"),
-                Distribution.fromGson(object, new double[0], "means")
+                Distribution.getMeans(object)
         );
     }
 }
