@@ -16,14 +16,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  *
@@ -31,7 +27,7 @@ import java.util.stream.Stream;
  */
 public class ReliabilityNetworkAnalyzer {
 
-    public static String separator = ";";
+    public static final String separator = ";";
 
     protected static int reverse_mask(int start, int n) {
         int buf = 0;
@@ -214,6 +210,7 @@ public class ReliabilityNetworkAnalyzer {
             out.println("AvIndex" + separator + avIndex);;
             out.println("Twrk" + separator + avIndex / cycleHazard);
             out.println("Tbrk" + separator + (1 - avIndex) / cycleHazard);
+            out.println();
 
             int start = 0, buf = 0;
 
@@ -264,7 +261,7 @@ public class ReliabilityNetworkAnalyzer {
 
             if (dynamicPwrk) {
 
-                double time = object.get("time").getAsDouble();
+                double time = object.get("plotTime").getAsDouble();
                 int stepsCount = object.get("stepsCount").getAsInt();
                 int innerStepsCount = object.get("innerStepsCount").getAsInt();
 

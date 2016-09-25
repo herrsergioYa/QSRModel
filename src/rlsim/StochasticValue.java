@@ -76,7 +76,7 @@ public class StochasticValue {
     private int count;
 
     public StochasticValue() {
-        this(0.0);
+        //this(0.0);
     }
 
     public StochasticValue(double value) {

@@ -75,6 +75,10 @@ public class StochasticValue {
     private double sumSqr;
     private int count;
 
+    public StochasticValue() {
+
+    }
+    
     public StochasticValue(double value) {
         this.sum = value;
         this.sumSqr = value * value;

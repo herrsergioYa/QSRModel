@@ -7,10 +7,10 @@ public class Value {
     private StochasticValue possibility;
     private StochasticValue duration;
 
-    public Value() {
+    /*public Value() {
         this.possibility = new StochasticValue();
         this.duration = new StochasticValue();
-    }
+    }*/
 
     public Value(double possibility, double duration) {
         this.possibility = new StochasticValue(possibility);
