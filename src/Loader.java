@@ -7,6 +7,7 @@ import rlsim.ReliabilitySystem;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutionException;
+import rna.ReliabilityNetworkAnalyzer;
 
 /**
  * Created by HerrSergio on 17.09.2016.
@@ -41,6 +42,11 @@ public class Loader {
                 case "/rla":
                     ReliabilityAnalyzer.main(in, out, log);
                     break;
+                case "rna":
+                case "-rna":
+                case "/rna":
+                    ReliabilityNetworkAnalyzer.main(in, out, log);
+                    break;
                 case "rls":
                 case "-rls":
                 case "/rls":
@@ -50,6 +56,9 @@ public class Loader {
                     throw new IllegalArgumentException();
             }
 
+        } catch(Throwable throwable) {
+            throwable.printStackTrace();
+            throw throwable;
         }
     }
 
