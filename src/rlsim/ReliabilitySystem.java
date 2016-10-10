@@ -3,9 +3,7 @@ package rlsim;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import distributions.Distribution;
-import distributions.ExponentialDistribution;
 import javenue.csv.Csv;
-import taskcomp.TaskComparator;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -22,10 +20,11 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
     private Random random;
     private Distribution lambda;
     private Distribution mu;
-    private int n, m, l, r;
+    private int n, m, l, r, p;
     private int serviceCount;
     private int rCurrent;
     private double timeLimit;
+    private boolean broken;
 
     private PriorityQueue<Double> breaks = new PriorityQueue<>();
     private PriorityQueue<Double> services = new PriorityQueue<>();
@@ -35,22 +34,23 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
     private Counter[] brokenCount, activeCount;
     private int lastBrokenCount, lastActiveCount;
 
-    public ReliabilitySystem(int seed, Distribution lambda, Distribution mu, int n, int m, int l, int r, int serviceCount, double timeLimit) {
+    public ReliabilitySystem(int seed, Distribution lambda, Distribution mu, int n, int m, int l, int r, int p, int serviceCount, double timeLimit) {
         this.random = new Random(seed);
         this.lambda = lambda;
-        if(n < m || l < 1 || l > m || r < 0 || serviceCount < 1)
+        if(n < m || l < 1 || l > m || r < 0 || serviceCount < 1 || p < 1 || p > l)
             throw new IllegalArgumentException();
         this.mu = mu;
         this.n = n;
         this.m = m;
         this.l = l;
         this.r = r;
+        this.p = p;
         this.serviceCount = serviceCount;
         this.timeLimit = timeLimit;
         for(int i = 0; i < n; i++)
             breaks.add(lambda.next(random));
         this.rCurrent = r;
-        this.brokenCount = new Counter[n + r - (l - 1) + 1];
+        this.brokenCount = new Counter[n + r - (p - 1) + 1];
         for(int i = 0; i < brokenCount.length; i++) {
             brokenCount[i] = new Counter();
             brokenCount[i].in(currentTime);
@@ -70,7 +70,7 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
         while(true) {
             Boolean nextBreak = null;
             double time = Double.POSITIVE_INFINITY;
-            if (getActiveCount() > 0 && time > breaks.peek()) {
+            if (!broken && getActiveCount() > 0 && time > breaks.peek()) {
                 time = breaks.peek();
                 nextBreak = true;
             }
@@ -94,12 +94,10 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
                         generateNewBreak();
                     }
                 }
-                if(getActiveCount() < l) {
-                    double delta = this.services.peek() - currentTime;
-                    PriorityQueue<Double> breaks = new PriorityQueue<>();
-                    for(Double d : this.breaks)
-                        breaks.add(d + delta);
-                    this.breaks = breaks;
+                if(getActiveCount() == p - 1) {
+                    double delta = /*this.services.peek()*/ - currentTime;
+                    updateBreaks(delta);
+                    broken = true;
                 }
             } else {
                 currentTime = services.poll();
@@ -107,7 +105,12 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
                     generateNewRecover();
                     servicesPending--;
                 }
-                if(getActiveCount() < m) {
+                if (getActiveCount() < m) {
+                    if (getActiveCount() == p - 1) {
+                        double delta = +currentTime;
+                        updateBreaks(delta);
+                        broken = false;
+                    }
                     generateNewBreak();
                 } else if(rCurrent < r) {
                     rCurrent++;
@@ -117,6 +120,13 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
             }
             adjustValues();
         }
+    }
+
+    private void updateBreaks(double delta) {
+        PriorityQueue<Double> breaks = new PriorityQueue<>();
+        for(Double d : this.breaks)
+            breaks.add(d + delta);
+        this.breaks = breaks;
     }
 
     private void generateNewRecover() {
@@ -177,7 +187,7 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
                 tValue = Double.NaN;
             map.put(name, new Value(pValue, tValue));
         }
-        for(int i = l; i < activeCount.length; i++) {
+        for(int i = p; i < activeCount.length; i++) {
             String name = String.format("activeCount %s %d",
                     i < n ? ">=" : "==",
                     i
@@ -188,7 +198,7 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
                 tValue = Double.NaN;
             map.put(name, new Value(pValue, tValue));
         }
-        for(int i = l; i < activeCount.length; i++) {
+        for(int i = p; i < activeCount.length; i++) {
             String name = String.format("activeCount %s %d",
                     "<",
                     i
@@ -203,7 +213,7 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
         }
         
         {
-            int i = m; 
+            int i = l;//???? 
             String name = "System is active " 
                     + String.format("(activeCount %s %d)",
                         i < n ? ">=" : "==",
@@ -218,7 +228,7 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
         }
         
         {
-            int i = brokenCount.length - 2;
+            int i = n + r - l; //brokenCount.length - 2;//???? 
             String name = "System is broken "  
                     + String.format("(brokenCount %s %d)",
                         ">",
@@ -272,6 +282,7 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
             int l = object.getAsJsonPrimitive("l").getAsInt();
             int r = object.getAsJsonPrimitive("r").getAsInt();
             int s = object.getAsJsonPrimitive("s").getAsInt();
+            int p = /*object.has("p") ?*/ object.getAsJsonPrimitive("p").getAsInt() /* : m*/;
             double simulationDuration = object.getAsJsonPrimitive("simulationDuration").getAsDouble();
             int simulationsCount = object.getAsJsonPrimitive("simulationsCount").getAsInt();
 
@@ -285,7 +296,7 @@ public class ReliabilitySystem implements Runnable, Callable<LinkedHashMap<Strin
                         lambda,
                         mu,
                         m + n, m + l, m, r,
-                        s, simulationDuration
+                        p, s, simulationDuration
                 );
                 results.add(service.submit((Callable<LinkedHashMap<String, Value>>) rs));
             }

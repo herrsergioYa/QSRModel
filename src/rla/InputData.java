@@ -11,11 +11,12 @@ public class InputData {
     private int l;
     private int r;
     private int s;
+    private int p;
 
     public InputData() {
     }
 
-    public InputData(double lambda, double mu, int m, int n, int l, int r, int s) {
+    public InputData(double lambda, double mu, int m, int n, int l, int r, int s, int p) {
         this.lambda = lambda;
         this.mu = mu;
         this.m = m;
@@ -23,6 +24,7 @@ public class InputData {
         this.l = l;
         this.r = r;
         this.s = s;
+        this.p = p;
     }
 
     public double getLambda() {
@@ -80,4 +82,13 @@ public class InputData {
     public void setS(int s) {
         this.s = s;
     }
+
+    public int getP() {
+        return p;
+    }
+
+    public void setP(int p) {
+        this.p = p;
+    }
+    
 }

@@ -63,6 +63,10 @@ public class Loader {
                     case "/rls":
                         ReliabilitySystem.main(in, out, log);
                         break;
+                    case "rnv":
+                    case "-rnv":
+                    case "/rnv":
+                        throw new RuntimeException("Not yet implemented!");
                     default:
                         throw new IllegalArgumentException();
                 } 

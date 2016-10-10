@@ -21,11 +21,12 @@ public class ReliabilityAnalyzer {
         int l = inputData.getL();
         int r = inputData.getR();
         int s = inputData.getS();
+        int p = inputData.getP();
 
-        if(lambda <= 0.0 || mu <= 0.0 || m <= 0 || n < 0 || l < 0 || r < 0 || s <= 0 || n < l)
+        if(lambda <= 0.0 || mu <= 0.0 || m <= 0 || n < 0 || l < 0 || r < 0 || s <= 0 || n < l || p < 1 || p > m)
             throw new IllegalArgumentException();
 
-        int maxBrokenCount = n + r + 1;
+        int maxBrokenCount = n + r + 1 + (m - p);
 
         double[] ps = new double[maxBrokenCount + 1];
         double[] rightFlow = new double[maxBrokenCount];
@@ -106,7 +107,7 @@ public class ReliabilityAnalyzer {
         result.append("\n");
 
         result.append("condition").append(";").append("P").append(";").append("T").append("\n");;
-        for(int i = m; i <= usingCount[0]; i++) {
+        for(int i = p; i <= usingCount[0]; i++) {
             if(i == usingCount[0])
                 result.append("activeCount == ");
             else
@@ -121,7 +122,7 @@ public class ReliabilityAnalyzer {
         result.append("\n");
 
         result.append("condition").append(";").append("P").append(";").append("T").append("\n");;
-        for(int i = m; i <= usingCount[0]; i++) {
+        for(int i = p; i <= usingCount[0]; i++) {
             result.append("activeCount < ");
             result.append(i).append(";");
 
@@ -138,7 +139,7 @@ public class ReliabilityAnalyzer {
         result.append("Pidle = ").append(";").append(d(1 - workers[m])).append("\n");
         result.append("Tw = ").append(";").append(d(workersTin[m])).append("\n");
         result.append("Tidle = ").append(";").append(d(workersTout[m])).append("\n");
-        result.append("Wavg = ").append(";").append(d(buf)).append("\n");
+        //result.append("Wavg = ").append(";").append(d(buf)).append("\n");
 
         return result.toString();
     }
