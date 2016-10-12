@@ -29,7 +29,9 @@ public class QueueSystem implements Runnable, Callable<LinkedHashMap<String, Sto
     private PriorityQueue<Task> queue;
     private Counter systemCounter = new Counter();
     private Counter queueCounter = new Counter();
+    private Counter preexecuteCounter = new Counter();
     private Counter executorsCounter = new Counter();
+    private Counter postexecuteCounter = new Counter();
     private double currentTime;
     private double nextTask;
     private PriorityQueue<Task> executors;
@@ -87,7 +89,9 @@ public class QueueSystem implements Runnable, Callable<LinkedHashMap<String, Sto
         }
         task.setServedAt(currentTime + task.getServiceTime());
         executors.offer(task);
+        preexecuteCounter.out(currentTime);
         executorsCounter.in(currentTime);
+        postexecuteCounter.in(currentTime);
         return true;
     }
 
@@ -96,6 +100,7 @@ public class QueueSystem implements Runnable, Callable<LinkedHashMap<String, Sto
             return null;
         Task task = executors.poll();
         executorsCounter.out(currentTime);
+        postexecuteCounter.out(currentTime);
         return task;
     }
 
@@ -104,13 +109,18 @@ public class QueueSystem implements Runnable, Callable<LinkedHashMap<String, Sto
         double deadlineTime = currentTime + nu.next(random);
         Task task = new Task(currentTime, serviceTime, deadlineTime);
         systemCounter.in(currentTime);
+        preexecuteCounter.in(currentTime);
         return task;
     }
 
     protected void destroyTask(Task task, boolean succeeded) {
         systemCounter.out(currentTime);
-        //if (succeeded)
-         //   succeededCount++;
+        if (!succeeded) {
+            preexecuteCounter.out(currentTime);
+            postexecuteCounter.in(currentTime);
+            postexecuteCounter.out(currentTime);
+        }
+//succeededCount++;
     }
 
     private Task updateNextDropWhenAdd(Task newTask) {
@@ -173,14 +183,14 @@ public class QueueSystem implements Runnable, Callable<LinkedHashMap<String, Sto
         map.put("Доля успешных завершений", new StochasticValue(executorsCounter.getOutcome() * 1.0 / systemCounter.getOutcome()));
         map.put("Среднее время пребывания в системе", new StochasticValue(systemCounter.getAverageSojournTime(currentTime)));
         map.put("Среднее число заданий в системе", new StochasticValue(systemCounter.getAverageCount(currentTime)));
-        map.put("Среднее время ожидания", new StochasticValue(queueCounter.getAverageSojournTime(currentTime) * queueCounter.getIncome() * 1.0 / systemCounter.getIncome()));
+        map.put("Среднее время ожидания", new StochasticValue(preexecuteCounter.getAverageSojournTime(currentTime)));
         map.put("Средняя длина очереди", new StochasticValue(queueCounter.getAverageCount(currentTime)));
         map.put("Доля ожидавших", new StochasticValue(queueCounter.getIncome() * 1.0 / systemCounter.getIncome()));
         map.put("Среднее время ожидания ожидавших", new StochasticValue(queueCounter.getAverageSojournTime(currentTime)));
-        map.put("Среднее время обслуживания", new StochasticValue(executorsCounter.getAverageSojournTime(currentTime) * executorsCounter.getOutcome() * 1.0 / systemCounter.getOutcome()));
+        map.put("Среднее время обслуживания", new StochasticValue(postexecuteCounter.getAverageSojournTime(currentTime)));
         map.put("Среднее время обслуживания для обслуженных", new StochasticValue(executorsCounter.getAverageSojournTime(currentTime)));
         map.put("Среднее число активных исполнителей", new StochasticValue(executorsCounter.getAverageCount(currentTime)));
-        map.put("Использование системы", new StochasticValue(executorsCounter.getAverageCount(currentTime) / executorsCount));
+        map.put("Использование системы", new StochasticValue(executorsCounter.getAverageCount(currentTime) / (executorsCount < 0 ? Double.POSITIVE_INFINITY : executorsCount)));
         return map;
     }
 

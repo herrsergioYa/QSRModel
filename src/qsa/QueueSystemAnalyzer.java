@@ -37,6 +37,7 @@ public class QueueSystemAnalyzer {
             pSucc = 1;
             s = e = lambda / mu;
             Ts = Te = Te1 = 1 / mu;
+            Tq1= Double.NaN;
         } else {
             if((nlambda != 1.0 || nmu != 1.0) && (m >= 0 || nu > 0)) {
                 throw new RuntimeException("No model");
@@ -94,7 +95,7 @@ public class QueueSystemAnalyzer {
             Ts = s / lambda;
             Tq = q / lambda;
             Te = e / lambda;
-            if(pq > 0)
+            //if(pq > 0)
                 Tq1 = Tq / pq;
             Te1 = 1 / mu;//Te / pSucc;
 
