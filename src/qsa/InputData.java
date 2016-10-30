@@ -6,16 +6,14 @@ package qsa;
 public class InputData {
     private long executorsCount;
     private long queueLimit;
-    private double lambda;
-    private double nulambda;
-    private double mu;
-    private double numu;
-    private double nu;
+    private Momenta lambda;
+    private Momenta mu;
+    private Momenta nu;
 
     public InputData() {
     }
 
-    public InputData(long n, long m, double lambda, double nulambda, double mu, double numu, double nu) {
+    /*public InputData(long n, long m, double lambda, double nulambda, double mu, double numu, double nu) {
         this.executorsCount = n;
         this.queueLimit = m;
         this.lambda = lambda;
@@ -23,7 +21,7 @@ public class InputData {
         this.mu = mu;
         this.numu = numu;
         this.nu = nu;
-    }
+    }*/
 
     public long getN() {
         return executorsCount;
@@ -42,42 +40,50 @@ public class InputData {
     }
 
     public double getLambda() {
-        return lambda;
+        return lambda.getHazard();
     }
 
     public void setLambda(double lambda) {
-        this.lambda = lambda;
+        this.lambda.setHazard(lambda);
     }
 
     public double getNulambda() {
-        return nulambda;
+        return lambda.getCov();
     }
 
     public void setNulambda(double nulambda) {
-        this.nulambda = nulambda;
+        this.lambda.setCov(nulambda);
     }
 
     public double getMu() {
-        return mu;
+        return mu.getHazard();
     }
 
     public void setMu(double mu) {
-        this.mu = mu;
+        this.mu.setHazard(mu);
     }
 
     public double getNumu() {
-        return numu;
+        return mu.getCov();
     }
 
     public void setNumu(double numu) {
-        this.numu = numu;
+        this.mu.setCov(numu);
     }
 
     public double getNu() {
-        return nu;
+        return nu.getHazard();
     }
 
     public void setNu(double nu) {
-        this.nu = nu;
+        this.nu.setHazard(nu);
+    }
+    
+    public double getNunu() {
+        return nu.getCov();
+    }
+
+    public void setNunu(double nunu) {
+        this.nu.setCov(nunu);
     }
 }

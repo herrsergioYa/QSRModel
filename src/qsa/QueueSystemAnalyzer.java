@@ -1,8 +1,15 @@
 package qsa;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -26,8 +33,9 @@ public class QueueSystemAnalyzer {
         double nmu = inputData.getNumu();
 
         double nu = inputData.getNu();
+        double nnu = inputData.getNunu();
 
-        if(lambda <= 0 || mu <= 0 || nlambda < 0 || nmu < 0 || nu < 0 || n == 0){
+        if(lambda <= 0 || mu <= 0 || nlambda < 0 || nmu < 0 || nu < 0 || n == 0 || nnu < 0){
             throw new IllegalArgumentException();
         }
 
@@ -39,7 +47,7 @@ public class QueueSystemAnalyzer {
             Ts = Te = Te1 = 1 / mu;
             Tq1= Double.NaN;
         } else {
-            if((nlambda != 1.0 || nmu != 1.0) && (m >= 0 || nu > 0)) {
+            if((nlambda != 1.0 || nmu != 1.0) && (m >= 0 || nu > 0) || nu > 0 && nnu != 1.0 ) {
                 throw new RuntimeException("No model");
             }
 
@@ -122,8 +130,21 @@ public class QueueSystemAnalyzer {
 
         try (InputStreamReader in = new InputStreamReader(input, StandardCharsets.UTF_8);
              PrintWriter out = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8.displayName()))) {
-
-            Gson gson = new Gson();
+  
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(Momenta.class, new JsonDeserializer<Momenta>() {
+                @Override
+                public Momenta deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                    JsonObject object = json.getAsJsonObject();
+                    double hazard = object.has("mean") ? 1.0 / object.get("mean").getAsDouble() : object.get("hazard").getAsDouble();
+                    double cov = object.has("order") ? 1.0 / Math.sqrt(object.get("order").getAsDouble()) : object.get("cov").getAsDouble();
+                    return new Momenta(hazard, cov);
+                }
+                
+            });
+            
+            Gson gson = builder.create();
+            
             InputData inputData = gson.fromJson(in, InputData.class);
 
             DecimalFormat decimalFormat = new DecimalFormat("0.00000", DecimalFormatSymbols.getInstance(Locale.US));

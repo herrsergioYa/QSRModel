@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import rna.ReliabilityNetworkAnalyzer;
 import rnsim.ReliabilityNetwork;
+import rvm.ReliabilityCoverMinimal;
 
 /**
  * Created by HerrSergio on 17.09.2016.
@@ -48,6 +49,11 @@ public class Loader {
                     case "/rla":
                         ReliabilityAnalyzer.main(in, out, log);
                         break;
+                    case "rls":
+                    case "-rls":
+                    case "/rls":
+                        ReliabilitySystem.main(in, out, log);
+                        break;   
                     case "rna":
                     case "-rna":
                     case "/rna":
@@ -57,15 +63,15 @@ public class Loader {
                     case "-rns":
                     case "/rns":
                         ReliabilityNetwork.main(in, out, log);
+                        break;    
+                    case "rvm":
+                    case "-rvm":
+                    case "/rvm":
+                        ReliabilityCoverMinimal.main(in, out, log);
                         break;
-                    case "rls":
-                    case "-rls":
-                    case "/rls":
-                        ReliabilitySystem.main(in, out, log);
-                        break;
-                    case "rnv":
-                    case "-rnv":
-                    case "/rnv":
+                    case "rvs":
+                    case "-rvs":
+                    case "/rvs":
                         throw new RuntimeException("Not yet implemented!");
                     default:
                         throw new IllegalArgumentException();

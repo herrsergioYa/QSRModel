@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import qssim.Counter;
 import qssim.StatisticHolder;
 import qssim.StochasticValue;
+import static qssim.StochasticValue.getZ;
 import rlsim.Value;
 import static rna.ReliabilityNetworkAnalyzer.separator;
 import util.IdentityHashSet;
@@ -286,7 +287,7 @@ public class ReliabilityNetwork implements Runnable, Callable<double[]> {
             
             out.println("Time" + separator + "Pwrk" + separator + "absError");
             for(int i = 0; i < p.length; i++) {
-                out.println(i * dt + separator + p[i] + separator + Math.sqrt(p[i] * (1.0 - p[i]) / results.size()));
+                out.println(i * dt + separator + p[i] + separator +  Math.sqrt(p[i] * (1.0 - p[i]) / results.size()) * getZ(results.size() - 1));
             }
             
         }

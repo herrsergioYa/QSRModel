@@ -4,8 +4,8 @@ package rla;
  * Created by HerrSergio on 17.09.2016.
  */
 public class InputData {
-    private double lambda;
-    private double mu;
+    private Momentum lambda;
+    private Momentum mu;
     private int m;
     private int n;
     private int l;
@@ -17,8 +17,8 @@ public class InputData {
     }
 
     public InputData(double lambda, double mu, int m, int n, int l, int r, int s, int p) {
-        this.lambda = lambda;
-        this.mu = mu;
+        this.lambda = new Momentum(lambda);
+        this.mu = new Momentum(mu);
         this.m = m;
         this.n = n;
         this.l = l;
@@ -28,19 +28,19 @@ public class InputData {
     }
 
     public double getLambda() {
-        return lambda;
+        return lambda.getHazard();
     }
 
     public void setLambda(double lambda) {
-        this.lambda = lambda;
+        this.lambda.setHazard(lambda);
     }
 
     public double getMu() {
-        return mu;
+        return mu.getHazard();
     }
 
     public void setMu(double mu) {
-        this.mu = mu;
+        this.mu.setHazard(mu);
     }
 
     public int getM() {

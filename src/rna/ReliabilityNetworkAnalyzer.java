@@ -111,8 +111,8 @@ public class ReliabilityNetworkAnalyzer {
             for (int i = 0; i < n; i++) {
                 JsonObject node = nodes.get(i).getAsJsonObject();
                 lls[i] = new double[]{
-                    node.get("lambda").getAsDouble(),
-                    node.get("mu").getAsDouble()
+                    getHazard(node.get("lambda").getAsJsonObject()),
+                    getHazard(node.get("mu").getAsJsonObject())
                 };//.first >> lls[i].second;
                 names[i] = node.get("name").getAsString();
             }
@@ -207,7 +207,7 @@ public class ReliabilityNetworkAnalyzer {
                 avIndex += avIndexPart;
                 cycleHazard += cycleHazardPart * avIndexPart;
             }
-            out.println("AvIndex" + separator + avIndex);;
+            out.println("AvIndex" + separator + avIndex);
             out.println("Twrk" + separator + avIndex / cycleHazard);
             out.println("Tbrk" + separator + (1 - avIndex) / cycleHazard);
             out.println();
@@ -318,6 +318,14 @@ public class ReliabilityNetworkAnalyzer {
                     src = buf2;
                 }
             }
+        }
+    }
+    
+    public static double getHazard(JsonObject object) {
+        if(object.has("mean")) {
+            return 1.0 / object.get("mean").getAsDouble();
+        } else {
+            return object.get("hazard").getAsDouble();
         }
     }
 }

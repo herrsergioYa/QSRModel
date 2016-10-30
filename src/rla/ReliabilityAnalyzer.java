@@ -1,8 +1,15 @@
 package rla;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -155,7 +162,18 @@ public class ReliabilityAnalyzer {
         try (InputStreamReader in = new InputStreamReader(input, StandardCharsets.UTF_8);
              PrintWriter out = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8.displayName()))) {
 
-            Gson gson = new Gson();
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(Momentum.class, new JsonDeserializer<Momentum>() {
+                @Override
+                public Momentum deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                    JsonObject object = json.getAsJsonObject();
+                    double hazard = object.has("mean") ? 1.0 / object.get("mean").getAsDouble() : object.get("hazard").getAsDouble();
+                    return new Momentum(hazard);
+                }
+                
+            });
+            
+            Gson gson = builder.create();
 
             InputData inputData = gson.fromJson(in, InputData.class);
 

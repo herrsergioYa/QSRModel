@@ -1,14 +1,22 @@
 package qsgm;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import qsa.Momenta;
 
 /**
  * Created by HerrSergio on 17.09.2016.
@@ -21,10 +29,10 @@ public class QueueSystemGM {
         double nus[] = inputData.getNus();
         double mu = inputData.getMu();
 
-        if(lambdas.length != nus.length || nus.length != alphas.length + 1 || mu <= 0.0)
+        if(lambdas.length != nus.length || nus.length != alphas.length || mu <= 0.0)
             throw new IllegalArgumentException();
 
-        alphas = adjustAlphas(alphas);
+        //alphas = adjustAlphas(alphas);
 
         double ps[] = new double[lambdas.length];
         double p = 0.0;
@@ -103,7 +111,20 @@ public class QueueSystemGM {
         try (InputStreamReader in = new InputStreamReader(input, StandardCharsets.UTF_8);
              PrintWriter out = new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8.displayName()))) {
 
-            Gson gson = new Gson();
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(Momenta.class, new JsonDeserializer<Branch>() {
+                @Override
+                public Branch deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                    JsonObject object = json.getAsJsonObject();
+                    double hazard = object.has("mean") ? 1.0 / object.get("mean").getAsDouble() : object.get("hazard").getAsDouble();
+                    double cov = object.has("order") ? 1.0 / Math.sqrt(object.get("order").getAsDouble()) : object.get("cov").getAsDouble();
+                    double alpha = object.get("alpha").getAsDouble();
+                    return new Branch(alpha, hazard, cov);
+                }
+                
+            });
+            
+            Gson gson = builder.create();
 
             InputData inputData = gson.fromJson(in, InputData.class);
 
